@@ -14,7 +14,7 @@ export default function Layout() {
       <div className="flex h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-inter overflow-hidden">
         <Sidebar />
         <main className={`flex-1 transition-all duration-500 ease-in-out ${
-          state.sidebarCollapsed ? 'ml-20' : 'ml-80'
+          state.sidebarCollapsed ? 'ml-20' : 'ml-80 md:ml-72 lg:ml-80'
         }`}>
           <div className="h-full overflow-auto bg-gradient-to-br from-slate-900/50 via-purple-900/30 to-slate-900/50 backdrop-blur-sm">
             {state.selectedProject === 'analytics' ? <Analytics /> : <TaskView />}

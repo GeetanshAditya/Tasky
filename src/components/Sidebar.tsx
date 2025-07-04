@@ -101,26 +101,26 @@ export default function Sidebar() {
 
   return (
     <div className={`fixed left-0 top-0 h-full glass-dark border-r border-white/10 transition-all duration-500 ease-in-out z-40 ${
-      state.sidebarCollapsed ? 'w-20' : 'w-80'
+      state.sidebarCollapsed ? 'w-20' : 'w-80 md:w-72 lg:w-80'
     }`}>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-6 border-b border-white/10 bg-gradient-to-r from-indigo-600/20 to-purple-600/20">
+        <div className="p-4 md:p-6 border-b border-white/10 bg-gradient-to-r from-indigo-600/20 to-purple-600/20">
           <div className="flex items-center justify-between">
             {!state.sidebarCollapsed && (
               <div className="flex items-center space-x-3 animate-slide-in">
-                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-8 h-8 md:w-10 md:h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-4 h-4 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white text-shadow">TaskFlow Pro</h1>
-                  <p className="text-xs text-indigo-300">Productivity Dashboard</p>
+                  <h1 className="text-lg md:text-xl font-bold text-white text-shadow">TaskFlow Pro</h1>
+                  <p className="text-xs text-indigo-300 hidden md:block">Productivity Dashboard</p>
                 </div>
               </div>
             )}
             <button
               onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
-              className="p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110"
+              className="p-2 md:p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110"
             >
               {state.sidebarCollapsed ? <Menu className="w-5 h-5 text-indigo-300" /> : <X className="w-5 h-5 text-indigo-300" />}
             </button>
@@ -128,35 +128,35 @@ export default function Sidebar() {
         </div>
 
         {/* Timer */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-3 md:p-4 border-b border-white/10">
           <Timer />
         </div>
 
         {/* Navigation */}
         <div className="flex-1 overflow-auto">
           {!state.sidebarCollapsed && (
-            <div className="p-4 space-y-8">
+            <div className="p-3 md:p-4 space-y-6 md:space-y-8">
               {/* Workspace */}
               <div className="animate-fade-in">
-                <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-4 flex items-center">
+                <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-3 md:mb-4 flex items-center">
                   <Target className="w-3 h-3 mr-2" />
                   Workspace
                 </h3>
-                <nav className="space-y-2">
+                <nav className="space-y-1 md:space-y-2">
                   <button
                     onClick={() => {
                       dispatch({ type: 'SET_SELECTED_PROJECT', payload: null });
                       dispatch({ type: 'SET_VIEW_MODE', payload: 'tasks' });
                     }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 card-hover ${
+                    className={`w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 card-hover ${
                       state.selectedProject === null && state.viewMode === 'tasks'
                         ? 'gradient-primary text-white shadow-lg border-gradient'
                         : 'hover:bg-white/10 text-gray-300 hover:text-white'
                     }`}
                   >
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">All Tasks</span>
-                    <span className="ml-auto text-sm bg-white/20 px-2 py-1 rounded-full">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="font-medium text-sm md:text-base">All Tasks</span>
+                    <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded-full">
                       {state.tasks.filter(task => task.status !== 'completed').length}
                     </span>
                   </button>
@@ -165,51 +165,51 @@ export default function Sidebar() {
                       dispatch({ type: 'SET_SELECTED_PROJECT', payload: 'analytics' });
                       dispatch({ type: 'SET_VIEW_MODE', payload: 'tasks' });
                     }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 card-hover ${
+                    className={`w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 card-hover ${
                       state.selectedProject === 'analytics'
                         ? 'gradient-secondary text-white shadow-lg border-gradient'
                         : 'hover:bg-white/10 text-gray-300 hover:text-white'
                     }`}
                   >
-                    <BarChart3 className="w-5 h-5" />
-                    <span className="font-medium">Analytics</span>
+                    <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="font-medium text-sm md:text-base">Analytics</span>
                   </button>
                   <button 
                     onClick={() => {
                       dispatch({ type: 'SET_VIEW_MODE', payload: 'calendar' });
                       dispatch({ type: 'SET_SELECTED_PROJECT', payload: 'calendar' });
                     }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 card-hover ${
+                    className={`w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 card-hover ${
                       state.viewMode === 'calendar' || state.selectedProject === 'calendar'
                         ? 'gradient-warning text-white shadow-lg border-gradient'
                         : 'hover:bg-white/10 text-gray-300 hover:text-white'
                     }`}
                   >
-                    <Calendar className="w-5 h-5" />
-                    <span className="font-medium">Calendar</span>
+                    <Calendar className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="font-medium text-sm md:text-base">Calendar</span>
                   </button>
-                  <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 card-hover">
-                    <Settings className="w-5 h-5" />
-                    <span className="font-medium">Settings</span>
+                  <button className="w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 card-hover">
+                    <Settings className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="font-medium text-sm md:text-base">Settings</span>
                   </button>
                 </nav>
               </div>
 
               {/* Projects */}
               <div className="animate-fade-in">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
                   <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center">
                     <Target className="w-3 h-3 mr-2" />
                     Projects
                   </h3>
                   <button
                     onClick={() => setShowNewProject(true)}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110"
+                    className="p-1.5 md:p-2 hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110"
                   >
-                    <Plus className="w-4 h-4 text-indigo-300" />
+                    <Plus className="w-3 h-3 md:w-4 md:h-4 text-indigo-300" />
                   </button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1 md:space-y-2">
                   {state.projects.map(project => {
                     const stats = getProjectStats(project.id);
                     return (
@@ -219,27 +219,27 @@ export default function Sidebar() {
                             dispatch({ type: 'SET_SELECTED_PROJECT', payload: project.id });
                             dispatch({ type: 'SET_VIEW_MODE', payload: 'tasks' });
                           }}
-                          className={`flex-1 flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 card-hover ${
+                          className={`flex-1 flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 card-hover ${
                             state.selectedProject === project.id
                               ? 'bg-white/10 text-white shadow-lg border border-white/20'
                               : 'hover:bg-white/5 text-gray-300 hover:text-white'
                           }`}
                         >
                           <div 
-                            className="w-4 h-4 rounded-full shadow-lg"
+                            className="w-3 h-3 md:w-4 md:h-4 rounded-full shadow-lg"
                             style={{ backgroundColor: project.color, boxShadow: `0 0 10px ${project.color}40` }}
                           />
-                          <span className="flex-1 text-left font-medium">{project.name}</span>
-                          <span className="text-sm bg-white/20 px-2 py-1 rounded-full">
+                          <span className="flex-1 text-left font-medium text-sm md:text-base truncate">{project.name}</span>
+                          <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
                             {stats.total}
                           </span>
                         </button>
                         {project.isDeletable && (
                           <button
                             onClick={() => handleDeleteProject(project.id)}
-                            className="opacity-0 group-hover:opacity-100 p-2 ml-2 hover:bg-red-500/20 rounded-lg transition-all duration-300"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 md:p-2 ml-2 hover:bg-red-500/20 rounded-lg transition-all duration-300"
                           >
-                            <Trash2 className="w-4 h-4 text-red-400" />
+                            <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-400" />
                           </button>
                         )}
                       </div>
@@ -249,26 +249,26 @@ export default function Sidebar() {
 
                 {/* New Project Form */}
                 {showNewProject && (
-                  <div className="mt-4 p-4 glass rounded-xl border border-white/20 animate-fade-in">
+                  <div className="mt-3 md:mt-4 p-3 md:p-4 glass rounded-xl border border-white/20 animate-fade-in">
                     <input
                       type="text"
                       value={newProjectName}
                       onChange={(e) => setNewProjectName(e.target.value)}
                       placeholder="Project name"
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-sm md:text-base"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleCreateProject();
                         if (e.key === 'Escape') setShowNewProject(false);
                       }}
                       autoFocus
                     />
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex space-x-2">
+                    <div className="flex items-center justify-between mt-3 md:mt-4">
+                      <div className="flex space-x-1.5 md:space-x-2">
                         {colors.map(color => (
                           <button
                             key={color}
                             onClick={() => setNewProjectColor(color)}
-                            className={`w-8 h-8 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
+                            className={`w-6 h-6 md:w-8 md:h-8 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
                               newProjectColor === color ? 'border-white scale-110 shadow-lg' : 'border-gray-600'
                             }`}
                             style={{ backgroundColor: color, boxShadow: newProjectColor === color ? `0 0 15px ${color}60` : 'none' }}
@@ -278,13 +278,13 @@ export default function Sidebar() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => setShowNewProject(false)}
-                          className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                          className="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-400 hover:text-white transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={handleCreateProject}
-                          className="px-4 py-2 text-sm gradient-primary rounded-lg transition-all duration-300 hover:scale-105 shadow-lg"
+                          className="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm gradient-primary rounded-lg transition-all duration-300 hover:scale-105 shadow-lg"
                         >
                           Create
                         </button>
@@ -298,51 +298,51 @@ export default function Sidebar() {
         </div>
 
         {/* Focus Mode Toggle */}
-        <div className="p-4 border-t border-white/10 bg-gradient-to-r from-purple-600/10 to-indigo-600/10">
+        <div className="p-3 md:p-4 border-t border-white/10 bg-gradient-to-r from-purple-600/10 to-indigo-600/10">
           <button
             onClick={() => dispatch({ type: 'TOGGLE_FOCUS_MODE' })}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 card-hover ${
+            className={`w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 card-hover ${
               state.focusMode
                 ? 'gradient-success text-white shadow-lg animate-glow'
                 : 'hover:bg-white/10 text-gray-300 hover:text-white'
             }`}
           >
-            {state.focusMode ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-            {!state.sidebarCollapsed && <span className="font-medium">Focus Mode</span>}
+            {state.focusMode ? <Eye className="w-4 h-4 md:w-5 md:h-5" /> : <EyeOff className="w-4 h-4 md:w-5 md:h-5" />}
+            {!state.sidebarCollapsed && <span className="font-medium text-sm md:text-base">Focus Mode</span>}
           </button>
           
           {/* GitHub Integration */}
           {!state.sidebarCollapsed && state.github && (
-            <div className="mt-4">
+            <div className="mt-3 md:mt-4">
               {!state.github.isConnected ? (
                 <>
                   {!showGitHubToken ? (
                     <button
                       onClick={() => setShowGitHubToken(true)}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-white/10 text-gray-300 hover:text-white card-hover"
+                      className="w-full flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-300 hover:bg-white/10 text-gray-300 hover:text-white card-hover"
                     >
-                      <Github className="w-5 h-5" />
-                      <span className="font-medium">Connect GitHub</span>
+                      <Github className="w-4 h-4 md:w-5 md:h-5" />
+                      <span className="font-medium text-sm md:text-base">Connect GitHub</span>
                     </button>
                   ) : (
-                    <div className="space-y-3 animate-fade-in">
+                    <div className="space-y-2 md:space-y-3 animate-fade-in">
                       <input
                         type="password"
                         placeholder="GitHub Personal Access Token"
                         value={gitHubToken}
                         onChange={(e) => setGitHubToken(e.target.value)}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        className="w-full px-3 md:px-4 py-2 md:py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm md:text-base"
                       />
                       <div className="flex space-x-2">
                         <button
                           onClick={handleConnectGitHub}
-                          className="flex-1 px-3 py-2 gradient-primary rounded-lg text-white text-sm transition-all duration-300 hover:scale-105"
+                          className="flex-1 px-3 py-1.5 md:py-2 gradient-primary rounded-lg text-white text-xs md:text-sm transition-all duration-300 hover:scale-105"
                         >
                           Connect
                         </button>
                         <button
                           onClick={() => setShowGitHubToken(false)}
-                          className="flex-1 px-3 py-2 bg-gray-600/50 hover:bg-gray-600/70 rounded-lg text-white text-sm transition-colors"
+                          className="flex-1 px-3 py-1.5 md:py-2 bg-gray-600/50 hover:bg-gray-600/70 rounded-lg text-white text-xs md:text-sm transition-colors"
                         >
                           Cancel
                         </button>
@@ -351,27 +351,27 @@ export default function Sidebar() {
                   )}
                 </>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   <div className="flex items-center space-x-2 text-green-400">
-                    <Github className="w-4 h-4" />
-                    <span className="text-sm font-medium">@{state.github.username}</span>
+                    <Github className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="text-xs md:text-sm font-medium">@{state.github.username}</span>
                   </div>
                   {state.github.selectedRepo && (
                     <div className="text-xs text-gray-400 px-2">
                       Repository: {state.github.selectedRepo.split('/')[1]}
                     </div>
                   )}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                     <button
                       onClick={handleSyncFromGitHub}
-                      className="flex items-center justify-center space-x-1 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 text-sm transition-all duration-300 card-hover"
+                      className="flex items-center justify-center space-x-1 px-2 md:px-3 py-1.5 md:py-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 text-xs md:text-sm transition-all duration-300 card-hover"
                     >
                       <RefreshCw className="w-3 h-3" />
                       <span>Sync</span>
                     </button>
                     <button
                       onClick={handleUploadToGitHub}
-                      className="flex items-center justify-center space-x-1 px-3 py-2 bg-green-600/20 hover:bg-green-600/30 rounded-lg text-green-400 text-sm transition-all duration-300 card-hover"
+                      className="flex items-center justify-center space-x-1 px-2 md:px-3 py-1.5 md:py-2 bg-green-600/20 hover:bg-green-600/30 rounded-lg text-green-400 text-xs md:text-sm transition-all duration-300 card-hover"
                     >
                       <Upload className="w-3 h-3" />
                       <span>Upload</span>
@@ -379,13 +379,13 @@ export default function Sidebar() {
                   </div>
                   <button
                     onClick={() => setShowGitHubRepoModal(true)}
-                    className="w-full px-3 py-2 bg-purple-600/20 hover:bg-purple-600/30 rounded-lg text-purple-400 text-sm transition-all duration-300 card-hover"
+                    className="w-full px-3 py-1.5 md:py-2 bg-purple-600/20 hover:bg-purple-600/30 rounded-lg text-purple-400 text-xs md:text-sm transition-all duration-300 card-hover"
                   >
                     Change Repository
                   </button>
                   <button
                     onClick={handleDisconnectGitHub}
-                    className="w-full px-3 py-2 bg-red-600/20 hover:bg-red-600/30 rounded-lg text-red-400 text-sm transition-all duration-300 card-hover"
+                    className="w-full px-3 py-1.5 md:py-2 bg-red-600/20 hover:bg-red-600/30 rounded-lg text-red-400 text-xs md:text-sm transition-all duration-300 card-hover"
                   >
                     Disconnect
                   </button>

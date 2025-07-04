@@ -130,127 +130,129 @@ export default function TaskView() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-8 border-b border-white/10 bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-8">
-          <div className="animate-slide-in">
+      <div className="p-4 md:p-6 lg:p-8 border-b border-white/10 bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10 backdrop-blur-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 lg:mb-8">
+          <div className="animate-slide-in mb-4 lg:mb-0">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                <Target className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                <Target className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-white text-shadow">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white text-shadow">
                   {getViewTitle()}
                 </h1>
-                <p className="text-indigo-300 font-medium">
+                <p className="text-indigo-300 font-medium text-sm md:text-base">
                   {getViewSubtitle()}
                 </p>
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-right bg-white/10 rounded-xl p-4 border border-white/20">
-              <div className="text-sm text-indigo-300 font-medium">Overall Progress</div>
-              <div className="text-2xl font-bold text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <div className="text-left sm:text-right bg-white/10 rounded-xl p-3 md:p-4 border border-white/20 w-full sm:w-auto">
+              <div className="text-xs md:text-sm text-indigo-300 font-medium">Overall Progress</div>
+              <div className="text-xl md:text-2xl font-bold text-white">
                 {taskStats.total > 0 ? `${taskStats.completionRate}%` : '0%'}
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-xs md:text-sm text-gray-400">
                 {taskStats.completed}/{taskStats.total} completed
               </div>
             </div>
 
-            <button
-              onClick={exportData}
-              className="flex items-center space-x-2 px-6 py-3 glass rounded-xl transition-all duration-300 hover:scale-105 border border-white/20 card-hover"
-            >
-              <Download className="w-5 h-5" />
-              <span className="font-medium">Export</span>
-            </button>
+            <div className="flex space-x-2 sm:space-x-4 w-full sm:w-auto">
+              <button
+                onClick={exportData}
+                className="flex items-center space-x-2 px-4 md:px-6 py-2 md:py-3 glass rounded-xl transition-all duration-300 hover:scale-105 border border-white/20 card-hover flex-1 sm:flex-none justify-center"
+              >
+                <Download className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="font-medium text-sm md:text-base">Export</span>
+              </button>
 
-            <button
-              onClick={() => dispatch({ type: 'SET_SELECTED_PROJECT', payload: 'analytics' })}
-              className="flex items-center space-x-2 px-6 py-3 gradient-secondary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-medium"
-            >
-              <BarChart3 className="w-5 h-5" />
-              <span>Analytics</span>
-            </button>
+              <button
+                onClick={() => dispatch({ type: 'SET_SELECTED_PROJECT', payload: 'analytics' })}
+                className="flex items-center space-x-2 px-4 md:px-6 py-2 md:py-3 gradient-secondary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-medium flex-1 sm:flex-none justify-center"
+              >
+                <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-sm md:text-base">Analytics</span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Stats Dashboard */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <div className="glass rounded-xl border border-white/20 p-6 card-hover animate-fade-in">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                <Target className="w-5 h-5 text-blue-400" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div className="glass rounded-xl border border-white/20 p-4 md:p-6 card-hover animate-fade-in">
+            <div className="flex items-center justify-between mb-2 md:mb-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
               </div>
-              <div className="text-xs gradient-primary text-transparent bg-clip-text font-bold px-3 py-1 bg-white/10 rounded-full">
+              <div className="text-xs gradient-primary text-transparent bg-clip-text font-bold px-2 py-1 bg-white/10 rounded-full">
                 {taskStats.total}
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{taskStats.total}</div>
-            <div className="text-sm text-gray-400">Total Tasks</div>
+            <div className="text-xl md:text-2xl font-bold text-white mb-1">{taskStats.total}</div>
+            <div className="text-xs md:text-sm text-gray-400">Total Tasks</div>
           </div>
 
-          <div className="glass rounded-xl border border-white/20 p-6 card-hover animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                <Circle className="w-5 h-5 text-indigo-400" />
+          <div className="glass rounded-xl border border-white/20 p-4 md:p-6 card-hover animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="flex items-center justify-between mb-2 md:mb-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                <Circle className="w-4 h-4 md:w-5 md:h-5 text-indigo-400" />
               </div>
-              <div className="text-xs bg-indigo-500/20 text-indigo-300 font-bold px-3 py-1 rounded-full">
+              <div className="text-xs bg-indigo-500/20 text-indigo-300 font-bold px-2 py-1 rounded-full">
                 {taskStats.todo}
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{taskStats.todo}</div>
-            <div className="text-sm text-gray-400">To Do</div>
+            <div className="text-xl md:text-2xl font-bold text-white mb-1">{taskStats.todo}</div>
+            <div className="text-xs md:text-sm text-gray-400">To Do</div>
           </div>
 
-          <div className="glass rounded-xl border border-white/20 p-6 card-hover animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
-                <Clock className="w-5 h-5 text-yellow-400" />
+          <div className="glass rounded-xl border border-white/20 p-4 md:p-6 card-hover animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center justify-between mb-2 md:mb-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
               </div>
-              <div className="text-xs bg-yellow-500/20 text-yellow-300 font-bold px-3 py-1 rounded-full">
+              <div className="text-xs bg-yellow-500/20 text-yellow-300 font-bold px-2 py-1 rounded-full">
                 {taskStats.active}
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{taskStats.active}</div>
-            <div className="text-sm text-gray-400">In Progress</div>
+            <div className="text-xl md:text-2xl font-bold text-white mb-1">{taskStats.active}</div>
+            <div className="text-xs md:text-sm text-gray-400">In Progress</div>
           </div>
 
-          <div className="glass rounded-xl border border-white/20 p-6 card-hover animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-400" />
+          <div className="glass rounded-xl border border-white/20 p-4 md:p-6 card-hover animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-center justify-between mb-2 md:mb-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
               </div>
-              <div className="text-xs bg-green-500/20 text-green-300 font-bold px-3 py-1 rounded-full">
+              <div className="text-xs bg-green-500/20 text-green-300 font-bold px-2 py-1 rounded-full">
                 {taskStats.completed}
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{taskStats.completed}</div>
-            <div className="text-sm text-gray-400">Completed</div>
+            <div className="text-xl md:text-2xl font-bold text-white mb-1">{taskStats.completed}</div>
+            <div className="text-xs md:text-sm text-gray-400">Completed</div>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-3 md:space-y-0 md:space-x-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
             <input
               type="text"
               placeholder="Search tasks..."
               value={state.searchQuery}
               onChange={(e) => dispatch({ type: 'SET_SEARCH_QUERY', payload: e.target.value })}
-              className="w-full pl-12 pr-4 py-4 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300"
+              className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-sm md:text-base"
             />
           </div>
           <div className="relative">
             <button
               onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-              className="flex items-center space-x-2 px-6 py-4 glass border border-white/20 rounded-xl hover:bg-white/10 transition-all duration-300 card-hover"
+              className="flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 glass border border-white/20 rounded-xl hover:bg-white/10 transition-all duration-300 card-hover w-full md:w-auto justify-center"
             >
-              <Filter className="w-5 h-5" />
-              <span className="font-medium">Filters</span>
-              <ChevronDown className="w-4 h-4" />
+              <Filter className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="font-medium text-sm md:text-base">Filters</span>
+              <ChevronDown className="w-3 h-3 md:w-4 md:h-4" />
             </button>
             {filterDropdownOpen && (
               <div className="absolute right-0 top-full mt-2 w-48 glass border border-white/20 rounded-xl shadow-2xl z-50 animate-fade-in">
@@ -261,7 +263,7 @@ export default function TaskView() {
                       dispatch({ type: 'SET_FILTER_STATUS', payload: filter.value as any });
                       setFilterDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 hover:bg-white/10 transition-colors first:rounded-t-xl last:rounded-b-xl font-medium ${
+                    className={`w-full text-left px-4 py-3 hover:bg-white/10 transition-colors first:rounded-t-xl last:rounded-b-xl font-medium text-sm md:text-base ${
                       state.filterStatus === filter.value ? 'gradient-primary text-white' : 'text-gray-300'
                     }`}
                   >
@@ -273,48 +275,48 @@ export default function TaskView() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center space-x-2 px-8 py-4 gradient-primary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-bold"
+            className="flex items-center space-x-2 px-6 md:px-8 py-3 md:py-4 gradient-primary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-bold justify-center"
           >
-            <Plus className="w-5 h-5" />
-            <span>New Task</span>
+            <Plus className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="text-sm md:text-base">New Task</span>
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
         {filteredTasks.length === 0 ? (
-          <div className="text-center py-20 animate-fade-in">
-            <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
-              <Zap className="w-12 h-12 text-white" />
+          <div className="text-center py-12 md:py-20 animate-fade-in">
+            <div className="w-20 h-20 md:w-24 md:h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <Zap className="w-10 h-10 md:w-12 md:h-12 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3">No tasks found</h3>
-            <p className="text-gray-400 mb-8 text-lg">
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-3">No tasks found</h3>
+            <p className="text-gray-400 mb-6 md:mb-8 text-base md:text-lg">
               {state.searchQuery ? 'Try adjusting your search or filters' : 'Create your first task to get started'}
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center space-x-2 px-8 py-4 gradient-primary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-bold"
+              className="inline-flex items-center space-x-2 px-6 md:px-8 py-3 md:py-4 gradient-primary rounded-xl transition-all duration-300 hover:scale-105 shadow-lg font-bold"
             >
-              <Plus className="w-5 h-5" />
-              <span>Create First Task</span>
+              <Plus className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-sm md:text-base">Create First Task</span>
             </button>
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-8 md:space-y-10">
             {/* Todo Tasks */}
             {groupedTasks.todo.length > 0 && (
               <div className="animate-fade-in">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <Circle className="w-5 h-5 text-blue-400" />
+                <div className="flex items-center space-x-3 mb-4 md:mb-6">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Circle className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-lg md:text-xl font-bold text-white">
                     To Do ({groupedTasks.todo.length})
                   </h2>
                   <div className="flex-1 h-px bg-gradient-to-r from-blue-500/50 to-transparent"></div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {groupedTasks.todo.map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}
@@ -325,16 +327,16 @@ export default function TaskView() {
             {/* Active Tasks */}
             {groupedTasks.active.length > 0 && (
               <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-yellow-400" />
+                <div className="flex items-center space-x-3 mb-4 md:mb-6">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                    <Clock className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-lg md:text-xl font-bold text-white">
                     In Progress ({groupedTasks.active.length})
                   </h2>
                   <div className="flex-1 h-px bg-gradient-to-r from-yellow-500/50 to-transparent"></div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {groupedTasks.active.map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}
@@ -345,16 +347,16 @@ export default function TaskView() {
             {/* Overdue Tasks */}
             {groupedTasks.overdue.length > 0 && (
               <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
-                    <AlertCircle className="w-5 h-5 text-red-400" />
+                <div className="flex items-center space-x-3 mb-4 md:mb-6">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                    <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-lg md:text-xl font-bold text-white">
                     Overdue ({groupedTasks.overdue.length})
                   </h2>
                   <div className="flex-1 h-px bg-gradient-to-r from-red-500/50 to-transparent"></div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {groupedTasks.overdue.map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}
@@ -365,16 +367,16 @@ export default function TaskView() {
             {/* Completed Tasks */}
             {groupedTasks.completed.length > 0 && (
               <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
+                <div className="flex items-center space-x-3 mb-4 md:mb-6">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-lg md:text-xl font-bold text-white">
                     Completed ({groupedTasks.completed.length})
                   </h2>
                   <div className="flex-1 h-px bg-gradient-to-r from-green-500/50 to-transparent"></div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {groupedTasks.completed.map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}
@@ -388,9 +390,9 @@ export default function TaskView() {
       {/* Floating Action Button */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className="fixed bottom-8 right-8 w-16 h-16 gradient-primary rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 z-50 animate-glow"
+        className="fixed bottom-6 md:bottom-8 right-6 md:right-8 w-14 h-14 md:w-16 md:h-16 gradient-primary rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 z-50 animate-glow"
       >
-        <Plus className="w-8 h-8 text-white" />
+        <Plus className="w-6 h-6 md:w-8 md:h-8 text-white" />
       </button>
 
       {/* Create Task Modal */}
