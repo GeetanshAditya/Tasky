@@ -37,12 +37,19 @@ export interface TimerState {
   taskStartTime: Date | null;
 }
 
+export interface SyncStatus {
+  isLoading: boolean;
+  lastSync: Date | null;
+  error: string | null;
+}
+
 export interface GitHubState {
   isConnected: boolean;
   token: string | null;
   username: string | null;
   selectedRepo: string | null;
   repositories: GitHubRepo[];
+  syncStatus: SyncStatus;
 }
 
 export interface GitHubRepo {

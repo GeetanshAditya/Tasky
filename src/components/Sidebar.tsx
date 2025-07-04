@@ -17,8 +17,12 @@ import {
   RefreshCw,
   Zap,
   Target,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import Timer from './Timer';
+import { format } from 'date-fns';
 
 export default function Sidebar() {
   const { state, dispatch, createProject, deleteProject, connectGitHub, disconnectGitHub, selectGitHubRepo, syncToGitHub, checkAndImportTaskData } = useApp();
@@ -97,6 +101,32 @@ export default function Sidebar() {
 
   const handleUploadToGitHub = async () => {
     await syncToGitHub(true);
+  };
+
+  const getSyncStatusIcon = () => {
+    if (state.github.syncStatus.isLoading) {
+      return <Loader2 className="w-3 h-3 animate-spin text-blue-400" />;
+    }
+    if (state.github.syncStatus.error) {
+      return <AlertCircle className="w-3 h-3 text-red-400" />;
+    }
+    if (state.github.syncStatus.lastSync) {
+      return <CheckCircle2 className="w-3 h-3 text-green-400" />;
+    }
+    return <Github className="w-3 h-3 text-gray-400" />;
+  };
+
+  const getSyncStatusText = () => {
+    if (state.github.syncStatus.isLoading) {
+      return 'Syncing...';
+    }
+    if (state.github.syncStatus.error) {
+      return 'Sync failed';
+    }
+    if (state.github.syncStatus.lastSync) {
+      return `Last sync: ${format(state.github.syncStatus.lastSync, 'HH:mm')}`;
+    }
+    return 'Ready to sync';
   };
 
   return (
@@ -332,17 +362,24 @@ export default function Sidebar() {
                         value={gitHubToken}
                         onChange={(e) => setGitHubToken(e.target.value)}
                         className="w-full px-2 sm:px-3 md:px-2 lg:px-3 py-1.5 sm:py-2 md:py-1.5 lg:py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-xs sm:text-sm md:text-xs lg:text-sm"
+                        disabled={state.github.syncStatus.isLoading}
                       />
                       <div className="flex space-x-1.5">
                         <button
                           onClick={handleConnectGitHub}
-                          className="flex-1 px-2 py-1 gradient-primary rounded-lg text-white text-xs transition-all duration-300 hover:scale-105"
+                          disabled={state.github.syncStatus.isLoading}
+                          className="flex-1 px-2 py-1 gradient-primary rounded-lg text-white text-xs transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
-                          Connect
+                          {state.github.syncStatus.isLoading ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            'Connect'
+                          )}
                         </button>
                         <button
                           onClick={() => setShowGitHubToken(false)}
-                          className="flex-1 px-2 py-1 bg-gray-600/50 hover:bg-gray-600/70 rounded-lg text-white text-xs transition-colors"
+                          disabled={state.github.syncStatus.isLoading}
+                          className="flex-1 px-2 py-1 bg-gray-600/50 hover:bg-gray-600/70 rounded-lg text-white text-xs transition-colors disabled:opacity-50"
                         >
                           Cancel
                         </button>
@@ -356,36 +393,65 @@ export default function Sidebar() {
                     <Github className="w-3 h-3" />
                     <span className="text-xs font-medium">@{state.github.username}</span>
                   </div>
+                  
+                  {/* Sync Status */}
+                  <div className="flex items-center space-x-1.5 text-xs text-gray-400">
+                    {getSyncStatusIcon()}
+                    <span>{getSyncStatusText()}</span>
+                  </div>
+                  
+                  {/* Error Display */}
+                  {state.github.syncStatus.error && (
+                    <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+                      {state.github.syncStatus.error}
+                    </div>
+                  )}
+                  
                   {state.github.selectedRepo && (
                     <div className="text-xs text-gray-400 px-1">
                       Repository: {state.github.selectedRepo.split('/')[1]}
                     </div>
                   )}
+                  
                   <div className="grid grid-cols-2 gap-1">
                     <button
                       onClick={handleSyncFromGitHub}
-                      className="flex items-center justify-center space-x-1 px-1.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 text-xs transition-all duration-300 card-hover"
+                      disabled={state.github.syncStatus.isLoading}
+                      className="flex items-center justify-center space-x-1 px-1.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 text-xs transition-all duration-300 card-hover disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <RefreshCw className="w-3 h-3" />
+                      {state.github.syncStatus.isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-3 h-3" />
+                      )}
                       <span>Sync</span>
                     </button>
                     <button
                       onClick={handleUploadToGitHub}
-                      className="flex items-center justify-center space-x-1 px-1.5 py-1 bg-green-600/20 hover:bg-green-600/30 rounded-lg text-green-400 text-xs transition-all duration-300 card-hover"
+                      disabled={state.github.syncStatus.isLoading}
+                      className="flex items-center justify-center space-x-1 px-1.5 py-1 bg-green-600/20 hover:bg-green-600/30 rounded-lg text-green-400 text-xs transition-all duration-300 card-hover disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Upload className="w-3 h-3" />
+                      {state.github.syncStatus.isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Upload className="w-3 h-3" />
+                      )}
                       <span>Upload</span>
                     </button>
                   </div>
+                  
                   <button
                     onClick={() => setShowGitHubRepoModal(true)}
-                    className="w-full px-2 py-1 bg-purple-600/20 hover:bg-purple-600/30 rounded-lg text-purple-400 text-xs transition-all duration-300 card-hover"
+                    disabled={state.github.syncStatus.isLoading}
+                    className="w-full px-2 py-1 bg-purple-600/20 hover:bg-purple-600/30 rounded-lg text-purple-400 text-xs transition-all duration-300 card-hover disabled:opacity-50"
                   >
                     Change Repository
                   </button>
+                  
                   <button
                     onClick={handleDisconnectGitHub}
-                    className="w-full px-2 py-1 bg-red-600/20 hover:bg-red-600/30 rounded-lg text-red-400 text-xs transition-all duration-300 card-hover"
+                    disabled={state.github.syncStatus.isLoading}
+                    className="w-full px-2 py-1 bg-red-600/20 hover:bg-red-600/30 rounded-lg text-red-400 text-xs transition-all duration-300 card-hover disabled:opacity-50"
                   >
                     Disconnect
                   </button>

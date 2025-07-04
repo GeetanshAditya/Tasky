@@ -49,7 +49,8 @@ type AppAction =
   | { type: 'DISCONNECT_GITHUB' }
   | { type: 'SELECT_GITHUB_REPO'; payload: string }
   | { type: 'TICK_TIMER' }
-  | { type: 'CHECK_OVERDUE_TASKS' };
+  | { type: 'CHECK_OVERDUE_TASKS' }
+  | { type: 'SET_SYNC_STATUS'; payload: { isLoading: boolean; lastSync?: Date; error?: string } };
 
 const initialState: AppState = {
   tasks: [],
@@ -87,6 +88,11 @@ const initialState: AppState = {
     username: null,
     selectedRepo: null,
     repositories: [],
+    syncStatus: {
+      isLoading: false,
+      lastSync: null,
+      error: null,
+    },
   },
 };
 
@@ -187,6 +193,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
           username: action.payload.username,
           selectedRepo: null,
           repositories: action.payload.repositories,
+          syncStatus: {
+            isLoading: false,
+            lastSync: null,
+            error: null,
+          },
         },
       };
     case 'DISCONNECT_GITHUB':
@@ -198,6 +209,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
           username: null,
           selectedRepo: null,
           repositories: [],
+          syncStatus: {
+            isLoading: false,
+            lastSync: null,
+            error: null,
+          },
         },
       };
     case 'SELECT_GITHUB_REPO':
@@ -206,6 +222,17 @@ function appReducer(state: AppState, action: AppAction): AppState {
         github: {
           ...state.github,
           selectedRepo: action.payload,
+        },
+      };
+    case 'SET_SYNC_STATUS':
+      return {
+        ...state,
+        github: {
+          ...state.github,
+          syncStatus: {
+            ...state.github.syncStatus,
+            ...action.payload,
+          },
         },
       };
     case 'TICK_TIMER':
@@ -294,6 +321,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             taskStartTime: parsed.timer.taskStartTime ? new Date(parsed.timer.taskStartTime) : null,
           },
           selectedDate: parsed.selectedDate ? new Date(parsed.selectedDate) : null,
+          github: {
+            ...parsed.github,
+            syncStatus: {
+              isLoading: false,
+              lastSync: parsed.github?.syncStatus?.lastSync ? new Date(parsed.github.syncStatus.lastSync) : null,
+              error: null,
+            },
+          },
         };
         dispatch({ type: 'LOAD_STATE', payload: processedState });
       } catch (error) {
@@ -329,18 +364,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Check for GitHub connection on app load
-  useEffect(() => {
-    const checkGitHubConnection = async () => {
-      if (state.github.isConnected && state.github.token && state.github.selectedRepo) {
-        // Try to import existing data on app load
-        await checkAndImportTaskData(state.github.token, state.github.selectedRepo);
-      }
-    };
-
-    checkGitHubConnection();
-  }, []);
-
   const createTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'actualTime' | 'subtasks' | 'isOverdue'>) => {
     const newTask: Task = {
       ...taskData,
@@ -352,7 +375,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     dispatch({ type: 'CREATE_TASK', payload: newTask });
     // Auto-sync to GitHub after task creation
-    setTimeout(() => syncToGitHub(false), 1000);
+    setTimeout(() => syncToGitHub(false), 2000);
   };
 
   const createSubtask = (parentId: string, taskData: Omit<Task, 'id' | 'createdAt' | 'actualTime' | 'subtasks' | 'parentId' | 'isOverdue'>) => {
@@ -388,18 +411,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Update tasks with new subtask
     const updatedTasks = addSubtaskToParent(state.tasks);
     dispatch({ type: 'LOAD_STATE', payload: { ...state, tasks: updatedTasks } });
+    // Auto-sync to GitHub after subtask creation
+    setTimeout(() => syncToGitHub(false), 2000);
   };
 
   const updateTask = (id: string, updates: Partial<Task>) => {
     dispatch({ type: 'UPDATE_TASK', payload: { id, updates } });
     // Auto-sync to GitHub after task update
-    setTimeout(() => syncToGitHub(false), 1000);
+    setTimeout(() => syncToGitHub(false), 2000);
   };
 
   const deleteTask = (id: string) => {
     dispatch({ type: 'DELETE_TASK', payload: id });
     // Auto-sync to GitHub after task deletion
-    setTimeout(() => syncToGitHub(false), 1000);
+    setTimeout(() => syncToGitHub(false), 2000);
   };
 
   const startTimer = (taskId: string) => {
@@ -535,37 +560,85 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }));
         
         dispatch({ type: 'IMPORT_DATA', payload: { tasks, projects } });
+        
+        // Update sync status
+        dispatch({
+          type: 'SET_SYNC_STATUS',
+          payload: {
+            isLoading: false,
+            lastSync: new Date(),
+            error: null,
+          },
+        });
       } else {
-        alert('Invalid file format. Please select a valid TaskFlow export file.');
+        throw new Error('Invalid file format');
       }
     } catch (error) {
+      console.error('Import error:', error);
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          error: 'Failed to import data. Invalid file format.',
+        },
+      });
       alert('Error reading file. Please check the file format and try again.');
     }
   };
 
-  const connectGitHub = async (token: string) => {
+  const connectGitHub = async (token: string): Promise<boolean> => {
+    dispatch({
+      type: 'SET_SYNC_STATUS',
+      payload: { isLoading: true, error: null },
+    });
+
     try {
-      // Get user info
+      // Validate token format
+      if (!token || token.length < 20) {
+        throw new Error('Invalid token format');
+      }
+
+      // Get user info with timeout
+      const userController = new AbortController();
+      const userTimeout = setTimeout(() => userController.abort(), 10000);
+
       const userResponse = await fetch('https://api.github.com/user', {
         headers: {
           'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'TaskFlow-Pro',
         },
+        signal: userController.signal,
       });
 
+      clearTimeout(userTimeout);
+
       if (!userResponse.ok) {
-        throw new Error('Invalid token or failed to authenticate');
+        if (userResponse.status === 401) {
+          throw new Error('Invalid GitHub token. Please check your token and try again.');
+        } else if (userResponse.status === 403) {
+          throw new Error('GitHub API rate limit exceeded. Please try again later.');
+        } else {
+          throw new Error(`GitHub API error: ${userResponse.status}`);
+        }
       }
 
       const user = await userResponse.json();
 
-      // Get private repositories
-      const reposResponse = await fetch('https://api.github.com/user/repos?type=private&sort=updated&per_page=100', {
+      // Get repositories with timeout
+      const reposController = new AbortController();
+      const reposTimeout = setTimeout(() => reposController.abort(), 15000);
+
+      const reposResponse = await fetch('https://api.github.com/user/repos?type=all&sort=updated&per_page=100', {
         headers: {
           'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'TaskFlow-Pro',
         },
+        signal: reposController.signal,
       });
+
+      clearTimeout(reposTimeout);
 
       if (!reposResponse.ok) {
         throw new Error('Failed to fetch repositories');
@@ -587,10 +660,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      // Don't automatically select a repo - let user choose through the modal
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          error: null,
+        },
+      });
+
       return true;
-    } catch (error) {
-      alert('Failed to connect to GitHub. Please check your token and try again.');
+    } catch (error: any) {
+      console.error('GitHub connection error:', error);
+      
+      let errorMessage = 'Failed to connect to GitHub.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Connection timeout. Please check your internet connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          error: errorMessage,
+        },
+      });
+
+      alert(errorMessage);
       return false;
     }
   };
@@ -607,81 +704,191 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const checkAndImportTaskData = async (token: string, repoFullName: string) => {
+    dispatch({
+      type: 'SET_SYNC_STATUS',
+      payload: { isLoading: true, error: null },
+    });
+
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch(`https://api.github.com/repos/${repoFullName}/contents/Task_details.json`, {
         headers: {
           'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'TaskFlow-Pro',
         },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeout);
 
       if (response.ok) {
         const fileData = await response.json();
         const content = atob(fileData.content);
         importData(content);
-        alert('Task data imported successfully from GitHub!');
+        alert('✅ Task data imported successfully from GitHub!');
+      } else if (response.status === 404) {
+        // File doesn't exist, that's ok
+        dispatch({
+          type: 'SET_SYNC_STATUS',
+          payload: {
+            isLoading: false,
+            error: null,
+          },
+        });
+        console.log('Task_details.json not found in repository - this is normal for new setups');
+      } else {
+        throw new Error(`Failed to check repository: ${response.status}`);
       }
-    } catch (error) {
-      // File doesn't exist, that's ok
-      console.log('Task_details.json not found in repository');
+    } catch (error: any) {
+      console.error('Import check error:', error);
+      
+      let errorMessage = 'Failed to check for existing data.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Connection timeout while checking repository.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          error: errorMessage,
+        },
+      });
     }
   };
 
   const syncToGitHub = async (showAlert: boolean = true) => {
     if (!state.github.isConnected || !state.github.token || !state.github.selectedRepo) {
       if (showAlert) {
-        alert('Please connect to GitHub and select a repository first.');
+        alert('❌ Please connect to GitHub and select a repository first.');
       }
       return;
     }
 
+    // Prevent multiple simultaneous syncs
+    if (state.github.syncStatus.isLoading) {
+      if (showAlert) {
+        alert('⏳ Sync already in progress. Please wait...');
+      }
+      return;
+    }
+
+    dispatch({
+      type: 'SET_SYNC_STATUS',
+      payload: { isLoading: true, error: null },
+    });
+
     try {
-      const dataStr = JSON.stringify(state, null, 2);
+      // Prepare data for sync
+      const dataStr = JSON.stringify({
+        ...state,
+        github: {
+          ...state.github,
+          token: '[REDACTED]', // Don't sync the token
+        },
+      }, null, 2);
+      
       const content = btoa(dataStr);
 
       // Check if file exists to get its SHA
       let sha = '';
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+
         const existingFile = await fetch(`https://api.github.com/repos/${state.github.selectedRepo}/contents/Task_details.json`, {
           headers: {
             'Authorization': `token ${state.github.token}`,
             'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'TaskFlow-Pro',
           },
+          signal: controller.signal,
         });
+
+        clearTimeout(timeout);
 
         if (existingFile.ok) {
           const fileData = await existingFile.json();
           sha = fileData.sha;
         }
       } catch (error) {
-        // File doesn't exist, no problem
+        // File doesn't exist or other error, continue without SHA
+        console.log('File does not exist or error checking:', error);
       }
 
       // Update or create file
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
       const response = await fetch(`https://api.github.com/repos/${state.github.selectedRepo}/contents/Task_details.json`, {
         method: 'PUT',
         headers: {
           'Authorization': `token ${state.github.token}`,
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
+          'User-Agent': 'TaskFlow-Pro',
         },
+        signal: controller.signal,
         body: JSON.stringify({
-          message: `Update TaskFlow data - ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`,
+          message: `🔄 TaskFlow Pro sync - ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`,
           content: content,
           ...(sha && { sha }),
         }),
       });
 
+      clearTimeout(timeout);
+
       if (!response.ok) {
-        throw new Error('Failed to sync to GitHub');
+        if (response.status === 401) {
+          throw new Error('GitHub token expired or invalid. Please reconnect.');
+        } else if (response.status === 403) {
+          throw new Error('Permission denied. Check repository access or API rate limits.');
+        } else if (response.status === 409) {
+          throw new Error('Sync conflict. Repository was modified by another source.');
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(`Sync failed: ${errorData.message || response.status}`);
+        }
       }
 
+      // Success
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          lastSync: new Date(),
+          error: null,
+        },
+      });
+
       if (showAlert) {
-        alert('Successfully synced to GitHub!');
+        alert('✅ Successfully synced to GitHub!');
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Sync error:', error);
+      
+      let errorMessage = 'Failed to sync to GitHub.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Sync timeout. Please check your internet connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      dispatch({
+        type: 'SET_SYNC_STATUS',
+        payload: {
+          isLoading: false,
+          error: errorMessage,
+        },
+      });
+
       if (showAlert) {
-        alert('Failed to sync to GitHub. Please try again.');
+        alert(`❌ ${errorMessage}`);
       }
     }
   };
