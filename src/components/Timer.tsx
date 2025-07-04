@@ -77,19 +77,19 @@ export default function Timer() {
     <div className="relative">
       {/* Notification */}
       {notification && (
-        <div className="absolute -top-16 left-0 right-0 gradient-primary text-white px-4 py-2 rounded-xl text-sm font-medium z-10 animate-pulse shadow-lg">
+        <div className="absolute -top-12 left-0 right-0 gradient-primary text-white px-3 py-1.5 rounded-xl text-xs font-medium z-10 animate-pulse shadow-lg">
           {notification}
         </div>
       )}
 
-      <div className="glass rounded-xl p-4 border border-white/20 shadow-lg">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <Clock className="w-4 h-4 text-white" />
+      <div className="glass rounded-xl p-3 border border-white/20 shadow-lg">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-1.5">
+            <div className="w-6 h-6 gradient-primary rounded-lg flex items-center justify-center">
+              <Clock className="w-3 h-3 text-white" />
             </div>
             <div>
-              <span className="text-sm font-bold text-white">
+              <span className="text-xs font-bold text-white">
                 {currentTask ? 'Active Session' : 'Timer Ready'}
               </span>
               <p className="text-xs text-gray-400">
@@ -98,26 +98,26 @@ export default function Timer() {
             </div>
           </div>
           {state.timer.isRunning && (
-            <div className="w-3 h-3 gradient-success rounded-full animate-pulse shadow-lg" />
+            <div className="w-2.5 h-2.5 gradient-success rounded-full animate-pulse shadow-lg" />
           )}
         </div>
 
         {currentTask && (
-          <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
-            <h4 className="text-sm font-bold text-white truncate mb-1">
+          <div className="mb-3 p-2 bg-white/5 rounded-lg border border-white/10">
+            <h4 className="text-xs font-bold text-white truncate mb-1">
               {currentTask.title}
             </h4>
             {currentTask.estimatedTime > 0 && (
-              <div className="mt-2">
-                <div className="flex justify-between text-xs text-gray-400 mb-2">
+              <div className="mt-1.5">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
                   <span>Progress</span>
                   <span>
                     {Math.min(100, Math.round((state.timer.elapsedTime / (currentTask.estimatedTime * 60)) * 100))}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-gray-700/50 rounded-full h-1.5 overflow-hidden">
                   <div 
-                    className={`h-2 rounded-full transition-all duration-500 ${
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
                       state.timer.elapsedTime > (currentTask.estimatedTime * 60)
                         ? 'gradient-danger'
                         : 'gradient-primary'
@@ -132,38 +132,38 @@ export default function Timer() {
           </div>
         )}
 
-        <div className="text-center mb-4">
-          <div className="text-3xl font-mono font-bold text-white text-shadow mb-1">
+        <div className="text-center mb-3">
+          <div className="text-xl sm:text-2xl md:text-xl lg:text-2xl font-mono font-bold text-white text-shadow mb-0.5">
             {formatTime(state.timer.elapsedTime)}
           </div>
           {currentTask && currentTask.estimatedTime > 0 && (
-            <div className="text-sm text-gray-400">
+            <div className="text-xs text-gray-400">
               of {formatTime(currentTask.estimatedTime * 60)} estimated
             </div>
           )}
         </div>
 
         {state.timer.isRunning && currentTask ? (
-          <div className="flex justify-center space-x-2">
+          <div className="flex justify-center space-x-1.5">
             <button
               onClick={handleComplete}
-              className="flex items-center justify-center px-4 py-2 gradient-success rounded-lg transition-all duration-300 text-sm font-bold hover:scale-105 shadow-lg"
+              className="flex items-center justify-center px-3 py-1.5 gradient-success rounded-lg transition-all duration-300 text-xs font-bold hover:scale-105 shadow-lg"
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <CheckCircle className="w-3 h-3 mr-1" />
               Complete
             </button>
             <button
               onClick={handleCancel}
-              className="flex items-center justify-center px-4 py-2 gradient-danger rounded-lg transition-all duration-300 text-sm font-bold hover:scale-105 shadow-lg"
+              className="flex items-center justify-center px-3 py-1.5 gradient-danger rounded-lg transition-all duration-300 text-xs font-bold hover:scale-105 shadow-lg"
             >
-              <X className="w-4 h-4 mr-2" />
+              <X className="w-3 h-3 mr-1" />
               Cancel
             </button>
           </div>
         ) : (
           <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
-              <Zap className="w-4 h-4" />
+            <div className="flex items-center justify-center space-x-1.5 text-xs text-gray-400">
+              <Zap className="w-3 h-3" />
               <span>Ready to boost productivity</span>
             </div>
           </div>

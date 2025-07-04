@@ -48,10 +48,10 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-6 h-6 text-green-400" />;
-      case 'active': return <Clock className="w-6 h-6 text-yellow-400" />;
-      case 'overdue': return <AlertCircle className="w-6 h-6 text-red-400" />;
-      default: return <Circle className="w-6 h-6 text-gray-400" />;
+      case 'completed': return <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-400" />;
+      case 'active': return <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-400" />;
+      case 'overdue': return <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-red-400" />;
+      default: return <Circle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-gray-400" />;
     }
   };
 
@@ -100,14 +100,14 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
     <div className={`glass rounded-xl border transition-all duration-300 card-hover animate-fade-in ${
       isRunning ? 'border-indigo-500/50 bg-indigo-500/10 animate-glow' : 'border-white/20'
     } ${task.status === 'completed' ? 'opacity-70' : ''}`} 
-    style={{ marginLeft: `${level * 24}px` }}>
+    style={{ marginLeft: `${level * 16}px` }}>
       
-      <div className="p-6">
-        <div className="flex items-start space-x-4">
+      <div className="p-3 sm:p-4 md:p-3 lg:p-5">
+        <div className="flex items-start space-x-2 sm:space-x-3 md:space-x-2 lg:space-x-3">
           {/* Status Toggle */}
           <button
             onClick={handleToggleComplete}
-            className="mt-1 hover:scale-110 transition-all duration-300"
+            className="mt-0.5 hover:scale-110 transition-all duration-300"
           >
             {getStatusIcon(task.status)}
           </button>
@@ -115,12 +115,12 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
           {/* Content */}
           <div className="flex-1 min-w-0">
             {isEditing ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-4 py-3 glass border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50"
+                  className="w-full px-3 py-2 glass border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-sm sm:text-base md:text-sm lg:text-base"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSaveEdit();
                     if (e.key === 'Escape') setIsEditing(false);
@@ -130,20 +130,20 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full px-4 py-3 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
-                  rows={3}
+                  className="w-full px-3 py-2 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none text-sm sm:text-base md:text-sm lg:text-base"
+                  rows={2}
                   placeholder="Task description..."
                 />
-                <div className="flex space-x-3">
+                <div className="flex space-x-2">
                   <button
                     onClick={handleSaveEdit}
-                    className="px-6 py-2 gradient-primary rounded-lg transition-all duration-300 hover:scale-105 font-medium"
+                    className="px-4 py-1.5 gradient-primary rounded-lg transition-all duration-300 hover:scale-105 font-medium text-sm"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+                    className="px-4 py-1.5 text-gray-400 hover:text-white transition-colors text-sm"
                   >
                     Cancel
                   </button>
@@ -153,62 +153,62 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
               <>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-3 mb-2">
+                    <div className="flex items-center space-x-2 mb-1 sm:mb-2">
                       {task.subtasks.length > 0 && (
                         <button
                           onClick={() => setShowSubtasks(!showSubtasks)}
-                          className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                          className="p-0.5 hover:bg-white/10 rounded-lg transition-colors"
                         >
                           {showSubtasks ? 
-                            <ChevronDown className="w-4 h-4 text-gray-400" /> : 
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                            <ChevronDown className="w-3 h-3 text-gray-400" /> : 
+                            <ChevronRight className="w-3 h-3 text-gray-400" />
                           }
                         </button>
                       )}
-                      <h3 className={`text-lg font-bold text-white ${
+                      <h3 className={`text-sm sm:text-base md:text-sm lg:text-base font-bold text-white ${
                         task.status === 'completed' ? 'line-through text-gray-400' : ''
                       }`}>
                         {task.title}
                       </h3>
                       {isRunning && (
-                        <div className="flex items-center space-x-2 px-3 py-1 gradient-primary rounded-full">
-                          <Zap className="w-3 h-3 text-white" />
+                        <div className="flex items-center space-x-1 px-2 py-0.5 gradient-primary rounded-full">
+                          <Zap className="w-2.5 h-2.5 text-white" />
                           <span className="text-xs font-bold text-white">ACTIVE</span>
                         </div>
                       )}
                     </div>
                     {task.description && (
-                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm mb-2 sm:mb-3 line-clamp-2">
                         {task.description}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center space-x-2 ml-4">
+                  <div className="flex items-center space-x-1.5 ml-2">
                     {task.status !== 'completed' && task.status !== 'active' && (
                       <button
                         onClick={handleStartTimer}
-                        className="p-3 gradient-success rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                        className="p-2 gradient-success rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
                       >
-                        <Play className="w-4 h-4 text-white" />
+                        <Play className="w-3 h-3 text-white" />
                       </button>
                     )}
                     <div className="relative">
                       <button
                         onClick={() => setShowMenu(!showMenu)}
-                        className="p-3 hover:bg-white/10 rounded-xl transition-colors"
+                        className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                       >
-                        <MoreVertical className="w-4 h-4 text-gray-400" />
+                        <MoreVertical className="w-3 h-3 text-gray-400" />
                       </button>
                       {showMenu && (
-                        <div className="absolute right-0 top-full mt-2 w-44 glass border border-white/20 rounded-xl shadow-2xl z-20 animate-fade-in">
+                        <div className="absolute right-0 top-full mt-2 w-36 glass border border-white/20 rounded-xl shadow-2xl z-20 animate-fade-in">
                           <button
                             onClick={() => {
                               setIsEditing(true);
                               setShowMenu(false);
                             }}
-                            className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors text-left first:rounded-t-xl"
+                            className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-white/10 transition-colors text-left first:rounded-t-xl text-sm"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3 h-3" />
                             <span>Edit Task</span>
                           </button>
                           <button
@@ -216,9 +216,9 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                               setShowAddSubtask(true);
                               setShowMenu(false);
                             }}
-                            className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors text-left"
+                            className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-white/10 transition-colors text-left text-sm"
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-3 h-3" />
                             <span>Add Subtask</span>
                           </button>
                           <button
@@ -226,9 +226,9 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                               deleteTask(task.id);
                               setShowMenu(false);
                             }}
-                            className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors text-left text-red-400 last:rounded-b-xl"
+                            className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-white/10 transition-colors text-left text-red-400 last:rounded-b-xl text-sm"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3" />
                             <span>Delete</span>
                           </button>
                         </div>
@@ -239,11 +239,11 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
                 {/* Tags */}
                 {task.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
+                  <div className="flex flex-wrap gap-1.5 mt-2">
                     {task.tags.map(tag => (
                       <span
                         key={tag}
-                        className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-medium border border-indigo-500/30"
+                        className="inline-flex items-center px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-medium border border-indigo-500/30"
                       >
                         {tag}
                       </span>
@@ -252,19 +252,19 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                 )}
 
                 {/* Metadata */}
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-2 lg:space-x-3">
                     {/* Priority */}
-                    <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold border ${getPriorityColor(task.priority)}`}>
-                      <Flag className="w-3 h-3" />
+                    <div className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-xs font-bold border ${getPriorityColor(task.priority)}`}>
+                      <Flag className="w-2.5 h-2.5" />
                       <span className="capitalize">{task.priority}</span>
                     </div>
 
                     {/* Project */}
                     {project && (
-                      <div className="flex items-center space-x-2 text-xs text-gray-400">
+                      <div className="flex items-center space-x-1.5 text-xs text-gray-400">
                         <div 
-                          className="w-3 h-3 rounded-full shadow-lg"
+                          className="w-2 h-2 rounded-full shadow-lg"
                           style={{ backgroundColor: project.color, boxShadow: `0 0 8px ${project.color}40` }}
                         />
                         <span className="font-medium">{project.name}</span>
@@ -273,29 +273,29 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
                     {/* Due Date */}
                     {task.dueDate && (
-                      <div className={`flex items-center space-x-2 text-xs px-3 py-1 rounded-full ${
+                      <div className={`flex items-center space-x-1 text-xs px-2 py-0.5 rounded-full ${
                         isOverdue ? 'text-red-400 bg-red-500/20 border border-red-500/30' : 'text-gray-400'
                       }`}>
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-2.5 h-2.5" />
                         <span className="font-medium">
                           {isToday(task.dueDate) ? 'Today' : format(task.dueDate, 'MMM d')}
                         </span>
-                        {isOverdue && <AlertCircle className="w-3 h-3" />}
+                        {isOverdue && <AlertCircle className="w-2.5 h-2.5" />}
                       </div>
                     )}
                   </div>
 
                   {/* Time Info */}
-                  <div className="flex items-center space-x-4 text-xs text-gray-400">
+                  <div className="flex items-center space-x-2 text-xs text-gray-400">
                     {task.estimatedTime > 0 && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-white/5 rounded-lg">
-                        <Clock className="w-3 h-3" />
+                      <div className="flex items-center space-x-1 px-1.5 py-0.5 bg-white/5 rounded-lg">
+                        <Clock className="w-2.5 h-2.5" />
                         <span className="font-medium">{task.estimatedTime}m est</span>
                       </div>
                     )}
                     {task.actualTime > 0 && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-white/5 rounded-lg">
-                        <Clock className="w-3 h-3" />
+                      <div className="flex items-center space-x-1 px-1.5 py-0.5 bg-white/5 rounded-lg">
+                        <Clock className="w-2.5 h-2.5" />
                         <span className="font-medium">{task.actualTime}m actual</span>
                       </div>
                     )}
@@ -304,14 +304,14 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
                 {/* Progress Bar */}
                 {task.estimatedTime > 0 && task.actualTime > 0 && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs text-gray-400 mb-2">
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-gray-400 mb-1.5">
                       <span className="font-medium">Progress</span>
                       <span className="font-bold">{Math.round((task.actualTime / task.estimatedTime) * 100)}%</span>
                     </div>
-                    <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                    <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
                       <div 
-                        className={`h-3 rounded-full transition-all duration-500 ${
+                        className={`h-2 rounded-full transition-all duration-500 ${
                           task.actualTime > task.estimatedTime
                             ? 'gradient-danger'
                             : 'gradient-primary'
@@ -330,29 +330,29 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
         {/* Add Subtask Form */}
         {showAddSubtask && (
-          <div className="mt-6 p-4 glass rounded-xl border border-white/20 animate-fade-in">
+          <div className="mt-4 p-3 glass rounded-xl border border-white/20 animate-fade-in">
             <input
               type="text"
               value={newSubtaskTitle}
               onChange={(e) => setNewSubtaskTitle(e.target.value)}
               placeholder="Subtask title"
-              className="w-full px-4 py-3 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              className="w-full px-3 py-2 glass border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAddSubtask();
                 if (e.key === 'Escape') setShowAddSubtask(false);
               }}
               autoFocus
             />
-            <div className="flex space-x-3 mt-4">
+            <div className="flex space-x-2 mt-3">
               <button
                 onClick={handleAddSubtask}
-                className="px-6 py-2 gradient-primary rounded-lg transition-all duration-300 hover:scale-105 font-medium"
+                className="px-4 py-1.5 gradient-primary rounded-lg transition-all duration-300 hover:scale-105 font-medium text-sm"
               >
                 Add Subtask
               </button>
               <button
                 onClick={() => setShowAddSubtask(false)}
-                className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-1.5 text-gray-400 hover:text-white transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -363,7 +363,7 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
       {/* Subtasks */}
       {showSubtasks && task.subtasks.length > 0 && (
-        <div className="space-y-3 pb-6">
+        <div className="space-y-2 pb-3">
           {task.subtasks.map(subtask => (
             <TaskCard key={subtask.id} task={subtask} level={level + 1} />
           ))}
