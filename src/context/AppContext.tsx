@@ -11,6 +11,8 @@ interface AppContextType {
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   startTimer: (taskId: string) => void;
+  pauseTimer: () => void;
+  resumeTimer: (taskId: string) => void;
   completeTask: (taskId: string) => void;
   cancelTask: (taskId: string) => void;
   createProject: (name: string, color: string) => void;
@@ -25,6 +27,8 @@ interface AppContextType {
   selectGitHubRepo: (repoName: string) => Promise<void>;
   syncToGitHub: (showAlert?: boolean) => Promise<void>;
   checkAndImportTaskData: (token: string, repoFullName: string) => Promise<void>;
+  enterFullscreen: () => void;
+  exitFullscreen: () => void;
 }
 
 type AppAction =
@@ -38,7 +42,7 @@ type AppAction =
   | { type: 'SET_SELECTED_PROJECT'; payload: string | null }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILTER_PRIORITY'; payload: string }
-  | { type: 'SET_FILTER_STATUS'; payload: 'all' | 'todo' | 'active' | 'completed' | 'overdue' }
+  | { type: 'SET_FILTER_STATUS'; payload: 'all' | 'todo' | 'active' | 'completed' | 'overdue' | 'paused' }
   | { type: 'SET_SELECTED_DATE'; payload: Date | null }
   | { type: 'SET_VIEW_MODE'; payload: 'tasks' | 'calendar' }
   | { type: 'TOGGLE_SIDEBAR' }
@@ -50,7 +54,9 @@ type AppAction =
   | { type: 'SELECT_GITHUB_REPO'; payload: string }
   | { type: 'TICK_TIMER' }
   | { type: 'CHECK_OVERDUE_TASKS' }
-  | { type: 'SET_SYNC_STATUS'; payload: { isLoading: boolean; lastSync?: Date; error?: string } };
+  | { type: 'SET_SYNC_STATUS'; payload: { isLoading: boolean; lastSync?: Date; error?: string } }
+  | { type: 'PAUSE_TIMER' }
+  | { type: 'RESUME_TIMER'; payload: string };
 
 const initialState: AppState = {
   tasks: [],
@@ -68,11 +74,13 @@ const initialState: AppState = {
   ],
   timer: {
     isRunning: false,
+    isPaused: false,
     currentTaskId: null,
     elapsedTime: 0,
     startTime: null,
     pausedTime: 0,
     taskStartTime: null,
+    pausedTasks: {},
   },
   selectedProject: null,
   searchQuery: '',
@@ -136,6 +144,46 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         timer: { ...state.timer, ...action.payload },
       };
+    case 'PAUSE_TIMER':
+      if (state.timer.isRunning && state.timer.currentTaskId) {
+        const now = new Date();
+        const currentElapsed = state.timer.elapsedTime;
+        return {
+          ...state,
+          timer: {
+            ...state.timer,
+            isRunning: false,
+            isPaused: true,
+            pausedTasks: {
+              ...state.timer.pausedTasks,
+              [state.timer.currentTaskId]: {
+                elapsedTime: currentElapsed,
+                pausedAt: now,
+              },
+            },
+          },
+        };
+      }
+      return state;
+    case 'RESUME_TIMER':
+      const pausedTask = state.timer.pausedTasks[action.payload];
+      if (pausedTask) {
+        const { [action.payload]: removed, ...remainingPausedTasks } = state.timer.pausedTasks;
+        return {
+          ...state,
+          timer: {
+            ...state.timer,
+            isRunning: true,
+            isPaused: false,
+            currentTaskId: action.payload,
+            startTime: new Date(),
+            elapsedTime: pausedTask.elapsedTime,
+            pausedTime: pausedTask.elapsedTime * 1000,
+            pausedTasks: remainingPausedTasks,
+          },
+        };
+      }
+      return state;
     case 'SET_SELECTED_PROJECT':
       return {
         ...state,
@@ -310,6 +358,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
             completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
             overdueAt: task.overdueAt ? new Date(task.overdueAt) : undefined,
+            lastPausedAt: task.lastPausedAt ? new Date(task.lastPausedAt) : undefined,
           })),
           projects: parsed.projects.map((project: any) => ({
             ...project,
@@ -319,6 +368,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ...parsed.timer,
             startTime: parsed.timer.startTime ? new Date(parsed.timer.startTime) : null,
             taskStartTime: parsed.timer.taskStartTime ? new Date(parsed.timer.taskStartTime) : null,
+            pausedTasks: parsed.timer.pausedTasks || {},
           },
           selectedDate: parsed.selectedDate ? new Date(parsed.selectedDate) : null,
           github: {
@@ -435,6 +485,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       type: 'SET_TIMER',
       payload: {
         isRunning: true,
+        isPaused: false,
         currentTaskId: taskId,
         startTime: new Date(),
         taskStartTime: new Date(),
@@ -442,6 +493,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         pausedTime: 0,
       },
     });
+  };
+
+  const pauseTimer = () => {
+    if (state.timer.isRunning && state.timer.currentTaskId) {
+      updateTask(state.timer.currentTaskId, { 
+        status: 'paused',
+        pausedTime: state.timer.elapsedTime,
+        lastPausedAt: new Date(),
+      });
+      dispatch({ type: 'PAUSE_TIMER' });
+    }
+  };
+
+  const resumeTimer = (taskId: string) => {
+    updateTask(taskId, { status: 'active' });
+    dispatch({ type: 'RESUME_TIMER', payload: taskId });
   };
 
   const completeTask = (taskId: string) => {
@@ -460,6 +527,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         type: 'SET_TIMER',
         payload: {
           isRunning: false,
+          isPaused: false,
           currentTaskId: null,
           elapsedTime: 0,
           startTime: null,
@@ -478,6 +546,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         type: 'SET_TIMER',
         payload: {
           isRunning: false,
+          isPaused: false,
           currentTaskId: null,
           elapsedTime: 0,
           startTime: null,
@@ -552,6 +621,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
           completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
           overdueAt: task.overdueAt ? new Date(task.overdueAt) : undefined,
+          lastPausedAt: task.lastPausedAt ? new Date(task.lastPausedAt) : undefined,
         }));
         
         const projects = parsedData.projects.map((project: any) => ({
@@ -900,6 +970,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const enterFullscreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -910,6 +992,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateTask,
         deleteTask,
         startTimer,
+        pauseTimer,
+        resumeTimer,
         completeTask,
         cancelTask,
         createProject,
@@ -924,6 +1008,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         selectGitHubRepo,
         syncToGitHub,
         checkAndImportTaskData,
+        enterFullscreen,
+        exitFullscreen,
       }}
     >
       {children}

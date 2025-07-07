@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Target,
   Zap,
+  Pause,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import TaskCard from './TaskCard';
@@ -79,6 +80,7 @@ export default function TaskView() {
     const completedTasks = allTasks.filter(task => task.status === 'completed').length;
     const todoTasks = allTasks.filter(task => task.status === 'todo').length;
     const activeTasks = allTasks.filter(task => task.status === 'active').length;
+    const pausedTasks = allTasks.filter(task => task.status === 'paused').length;
     const overdueTasks = allTasks.filter(task => task.status === 'overdue').length;
 
     return {
@@ -86,6 +88,7 @@ export default function TaskView() {
       completed: completedTasks,
       todo: todoTasks,
       active: activeTasks,
+      paused: pausedTasks,
       overdue: overdueTasks,
       completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
     };
@@ -95,6 +98,7 @@ export default function TaskView() {
     { label: 'All Tasks', value: 'all' },
     { label: 'Todo', value: 'todo' },
     { label: 'Active', value: 'active' },
+    { label: 'Paused', value: 'paused' },
     { label: 'Completed', value: 'completed' },
     { label: 'Overdue', value: 'overdue' },
   ];
@@ -117,6 +121,7 @@ export default function TaskView() {
     const groups = {
       todo: filteredTasks.filter(task => task.status === 'todo'),
       active: filteredTasks.filter(task => task.status === 'active'),
+      paused: filteredTasks.filter(task => task.status === 'paused'),
       completed: filteredTasks.filter(task => task.status === 'completed'),
       overdue: filteredTasks.filter(task => task.status === 'overdue'),
     };
@@ -179,7 +184,7 @@ export default function TaskView() {
         </div>
 
         {/* Stats Dashboard */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-2 lg:gap-4 mb-4 sm:mb-6 md:mb-4 lg:mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-2 lg:gap-4 mb-4 sm:mb-6 md:mb-4 lg:mb-6">
           <div className="glass rounded-xl border border-white/20 p-3 sm:p-4 md:p-3 lg:p-4 card-hover animate-fade-in">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
               <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-blue-500/20 rounded-xl flex items-center justify-center">
@@ -220,6 +225,19 @@ export default function TaskView() {
           </div>
 
           <div className="glass rounded-xl border border-white/20 p-3 sm:p-4 md:p-3 lg:p-4 card-hover animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                <Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-blue-400" />
+              </div>
+              <div className="text-xs bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.5 rounded-full">
+                {taskStats.paused}
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl md:text-lg lg:text-xl font-bold text-white mb-0.5">{taskStats.paused}</div>
+            <div className="text-xs text-gray-400">Paused</div>
+          </div>
+
+          <div className="glass rounded-xl border border-white/20 p-3 sm:p-4 md:p-3 lg:p-4 card-hover animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
               <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-green-400" />
@@ -344,9 +362,29 @@ export default function TaskView() {
               </div>
             )}
 
+            {/* Paused Tasks */}
+            {groupedTasks.paused.length > 0 && (
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4 md:mb-3 lg:mb-4">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Pause className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-4 lg:h-4 text-blue-400" />
+                  </div>
+                  <h2 className="text-base sm:text-lg md:text-base lg:text-lg font-bold text-white">
+                    Paused ({groupedTasks.paused.length})
+                  </h2>
+                  <div className="flex-1 h-px bg-gradient-to-r from-blue-500/50 to-transparent"></div>
+                </div>
+                <div className="space-y-2 sm:space-y-3 md:space-y-2 lg:space-y-3">
+                  {groupedTasks.paused.map(task => (
+                    <TaskCard key={task.id} task={task} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Overdue Tasks */}
             {groupedTasks.overdue.length > 0 && (
-              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4 md:mb-3 lg:mb-4">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-red-500/20 rounded-lg flex items-center justify-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-4 lg:h-4 text-red-400" />
@@ -366,7 +404,7 @@ export default function TaskView() {
 
             {/* Completed Tasks */}
             {groupedTasks.completed.length > 0 && (
-              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
                 <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4 md:mb-3 lg:mb-4">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-green-500/20 rounded-lg flex items-center justify-center">
                     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-4 lg:h-4 text-green-400" />

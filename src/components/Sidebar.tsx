@@ -7,7 +7,6 @@ import {
   Plus,
   BarChart3,
   Calendar,
-  Settings,
   CheckCircle,
   Eye,
   EyeOff,
@@ -20,12 +19,13 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  Maximize2,
 } from 'lucide-react';
 import Timer from './Timer';
 import { format } from 'date-fns';
 
 export default function Sidebar() {
-  const { state, dispatch, createProject, deleteProject, connectGitHub, disconnectGitHub, selectGitHubRepo, syncToGitHub, checkAndImportTaskData } = useApp();
+  const { state, dispatch, createProject, deleteProject, connectGitHub, disconnectGitHub, selectGitHubRepo, syncToGitHub, checkAndImportTaskData, enterFullscreen } = useApp();
   const [showNewProject, setShowNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [showGitHubToken, setShowGitHubToken] = useState(false);
@@ -148,12 +148,21 @@ export default function Sidebar() {
                 </div>
               </div>
             )}
-            <button
-              onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
-              className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110"
-            >
-              {state.sidebarCollapsed ? <Menu className="w-4 h-4 text-indigo-300" /> : <X className="w-4 h-4 text-indigo-300" />}
-            </button>
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={enterFullscreen}
+                className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110"
+                title="Enter Fullscreen"
+              >
+                <Maximize2 className="w-4 h-4 text-indigo-300" />
+              </button>
+              <button
+                onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+                className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110"
+              >
+                {state.sidebarCollapsed ? <Menu className="w-4 h-4 text-indigo-300" /> : <X className="w-4 h-4 text-indigo-300" />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -217,10 +226,6 @@ export default function Sidebar() {
                   >
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-4 lg:h-4" />
                     <span className="font-medium text-xs sm:text-sm md:text-xs lg:text-sm">Calendar</span>
-                  </button>
-                  <button className="w-full flex items-center space-x-2 px-2 sm:px-3 md:px-2 lg:px-3 py-1.5 sm:py-2 md:py-1.5 lg:py-2 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 card-hover">
-                    <Settings className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-4 lg:h-4" />
-                    <span className="font-medium text-xs sm:text-sm md:text-xs lg:text-sm">Settings</span>
                   </button>
                 </nav>
               </div>

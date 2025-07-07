@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronRight,
   Zap,
+  Pause,
 } from 'lucide-react';
 import { format, isToday, isPast } from 'date-fns';
 import { Task } from '../types';
@@ -25,7 +26,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, level = 0 }: TaskCardProps) {
-  const { state, updateTask, deleteTask, startTimer, createSubtask } = useApp();
+  const { state, updateTask, deleteTask, startTimer, pauseTimer, resumeTimer, createSubtask } = useApp();
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -36,6 +37,7 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
   const project = state.projects.find(p => p.id === task.projectId);
   const isRunning = state.timer.isRunning && state.timer.currentTaskId === task.id;
+  const isPaused = state.timer.pausedTasks[task.id];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -50,6 +52,7 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
     switch (status) {
       case 'completed': return <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-400" />;
       case 'active': return <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-400" />;
+      case 'paused': return <Pause className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-400" />;
       case 'overdue': return <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-red-400" />;
       default: return <Circle className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-gray-400" />;
     }
@@ -78,6 +81,14 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
     startTimer(task.id);
   };
 
+  const handlePauseTimer = () => {
+    pauseTimer();
+  };
+
+  const handleResumeTimer = () => {
+    resumeTimer(task.id);
+  };
+
   const handleAddSubtask = () => {
     if (newSubtaskTitle.trim()) {
       createSubtask(task.id, {
@@ -98,7 +109,9 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
 
   return (
     <div className={`glass rounded-xl border transition-all duration-300 card-hover animate-fade-in ${
-      isRunning ? 'border-indigo-500/50 bg-indigo-500/10 animate-glow' : 'border-white/20'
+      isRunning ? 'border-indigo-500/50 bg-indigo-500/10 animate-glow' : 
+      isPaused ? 'border-blue-500/50 bg-blue-500/10' :
+      'border-white/20'
     } ${task.status === 'completed' ? 'opacity-70' : ''}`} 
     style={{ marginLeft: `${level * 16}px` }}>
       
@@ -176,6 +189,12 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                           <span className="text-xs font-bold text-white">ACTIVE</span>
                         </div>
                       )}
+                      {isPaused && (
+                        <div className="flex items-center space-x-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                          <Pause className="w-2.5 h-2.5 text-blue-400" />
+                          <span className="text-xs font-bold text-blue-400">PAUSED</span>
+                        </div>
+                      )}
                     </div>
                     {task.description && (
                       <p className="text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm mb-2 sm:mb-3 line-clamp-2">
@@ -184,13 +203,31 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                     )}
                   </div>
                   <div className="flex items-center space-x-1.5 ml-2">
-                    {task.status !== 'completed' && task.status !== 'active' && (
-                      <button
-                        onClick={handleStartTimer}
-                        className="p-2 gradient-success rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
-                      >
-                        <Play className="w-3 h-3 text-white" />
-                      </button>
+                    {task.status !== 'completed' && (
+                      <>
+                        {isRunning ? (
+                          <button
+                            onClick={handlePauseTimer}
+                            className="p-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                          >
+                            <Pause className="w-3 h-3 text-yellow-400" />
+                          </button>
+                        ) : isPaused ? (
+                          <button
+                            onClick={handleResumeTimer}
+                            className="p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                          >
+                            <Play className="w-3 h-3 text-blue-400" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={handleStartTimer}
+                            className="p-2 gradient-success rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                          >
+                            <Play className="w-3 h-3 text-white" />
+                          </button>
+                        )}
+                      </>
                     )}
                     <div className="relative">
                       <button
@@ -297,6 +334,12 @@ export default function TaskCard({ task, level = 0 }: TaskCardProps) {
                       <div className="flex items-center space-x-1 px-1.5 py-0.5 bg-white/5 rounded-lg">
                         <Clock className="w-2.5 h-2.5" />
                         <span className="font-medium">{task.actualTime}m actual</span>
+                      </div>
+                    )}
+                    {isPaused && (
+                      <div className="flex items-center space-x-1 px-1.5 py-0.5 bg-blue-500/20 rounded-lg">
+                        <Pause className="w-2.5 h-2.5" />
+                        <span className="font-medium">{Math.floor(isPaused.elapsedTime / 60)}m paused</span>
                       </div>
                     )}
                   </div>

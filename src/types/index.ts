@@ -4,7 +4,7 @@ export interface Task {
   description: string;
   projectId: string;
   priority: 'low' | 'medium' | 'high';
-  status: 'todo' | 'active' | 'completed' | 'overdue';
+  status: 'todo' | 'active' | 'completed' | 'overdue' | 'paused';
   dueDate?: Date;
   estimatedTime: number; // in minutes
   actualTime: number; // in minutes
@@ -15,6 +15,8 @@ export interface Task {
   subtasks: Task[];
   tags: string[];
   isOverdue: boolean;
+  pausedTime?: number; // accumulated paused time in seconds
+  lastPausedAt?: Date;
 }
 
 export interface Project {
@@ -30,11 +32,13 @@ export interface Project {
 
 export interface TimerState {
   isRunning: boolean;
+  isPaused: boolean;
   currentTaskId: string | null;
   elapsedTime: number;
   startTime: Date | null;
   pausedTime: number;
   taskStartTime: Date | null;
+  pausedTasks: { [taskId: string]: { elapsedTime: number; pausedAt: Date } };
 }
 
 export interface SyncStatus {
@@ -66,7 +70,7 @@ export interface AppState {
   selectedProject: string | null;
   searchQuery: string;
   filterPriority: string;
-  filterStatus: 'all' | 'todo' | 'active' | 'completed' | 'overdue';
+  filterStatus: 'all' | 'todo' | 'active' | 'completed' | 'overdue' | 'paused';
   sidebarCollapsed: boolean;
   focusMode: boolean;
   selectedDate: Date | null;
